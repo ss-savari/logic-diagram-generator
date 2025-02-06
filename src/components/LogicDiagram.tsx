@@ -34,9 +34,13 @@ const LogicDiagram: React.FC<LogicDiagramProps> = ({ nodes, edges }) => {
         nodeTypes={nodeTypes}
         connectionMode={ConnectionMode.Strict}
         fitView
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.5}
+        maxZoom={2}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         attributionPosition="bottom-left"
       >
-        <Background />
+        <Background color="#aaa" gap={16} />
         <Controls />
       </ReactFlow>
     </div>

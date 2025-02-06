@@ -5,12 +5,21 @@ interface ParsedGate {
 }
 
 export function parseLogicExpression(expression: string): ParsedGate[] {
-  // This is a simplified parser for demonstration
-  // In a real implementation, you'd want to use a proper parser
+  console.log('Parsing expression:', expression);
   const gates: ParsedGate[] = [];
   
+  // Replace symbols with words
+  let normalizedExp = expression
+    .toUpperCase()
+    .replace(/\+/g, ' OR ')
+    .replace(/-([A-Z])/g, 'NOT $1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  console.log('Normalized expression:', normalizedExp);
+  
   // Split the expression into tokens
-  const tokens = expression.toUpperCase().split(' ');
+  const tokens = normalizedExp.split(' ');
   
   for (let i = 0; i < tokens.length; i++) {
     if (['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR'].includes(tokens[i])) {
@@ -22,63 +31,71 @@ export function parseLogicExpression(expression: string): ParsedGate[] {
       
       // For NOT gate
       if (tokens[i] === 'NOT') {
-        gate.inputs = [tokens[i - 1]];
-        i++;
+        if (i + 1 < tokens.length) {
+          gate.inputs = [tokens[i + 1]];
+          i++; // Skip the next token as it's the input
+        }
       } else {
-        // For binary gates
-        gate.inputs = [tokens[i - 1], tokens[i + 1]];
-        i++;
+        // For binary gates (AND, OR, etc.)
+        if (i > 0 && i + 1 < tokens.length) {
+          gate.inputs = [tokens[i - 1], tokens[i + 1]];
+          i++; // Skip the next token as it's the second input
+        }
       }
       
       gates.push(gate);
     }
   }
   
+  console.log('Parsed gates:', gates);
   return gates;
 }
 
 export function generateDiagramElements(gates: ParsedGate[]) {
   const nodes = [];
   const edges = [];
+  const inputNodes = new Set<string>();
   let nodeId = 0;
   
-  // Create input nodes
-  const inputs = new Set<string>();
+  // First pass: collect all inputs
   gates.forEach(gate => {
-    gate.inputs.forEach(input => inputs.add(input));
+    gate.inputs.forEach(input => inputNodes.add(input));
   });
   
-  // Add input nodes
-  inputs.forEach(input => {
+  // Create input nodes
+  const inputPositions = new Map<string, { x: number, y: number }>();
+  Array.from(inputNodes).forEach((input, index) => {
+    const position = { x: 50, y: index * 100 + 50 };
+    inputPositions.set(input, position);
     nodes.push({
       id: `input-${input}`,
       type: 'gate',
-      position: { x: 0, y: nodeId * 100 },
+      position,
       data: { label: input, type: 'INPUT' }
     });
-    nodeId++;
   });
   
-  // Add gate nodes
+  // Create gate nodes with proper spacing
   gates.forEach((gate, index) => {
-    nodes.push({
+    const gateNode = {
       id: `gate-${index}`,
       type: 'gate',
-      position: { x: 250, y: index * 100 },
+      position: { x: 300, y: index * 100 + 50 },
       data: { label: gate.type, type: gate.type }
-    });
+    };
+    nodes.push(gateNode);
     
-    // Add edges from inputs to gates
+    // Connect inputs to gates
     gate.inputs.forEach((input, inputIndex) => {
       edges.push({
-        id: `edge-${nodeId}`,
+        id: `edge-${nodeId++}`,
         source: `input-${input}`,
         target: `gate-${index}`,
         type: 'smoothstep'
       });
-      nodeId++;
     });
   });
   
+  console.log('Generated diagram elements:', { nodes, edges });
   return { nodes, edges };
 }
