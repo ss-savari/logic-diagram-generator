@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
-import ReactFlow, {
+import {
+  ReactFlow,
   Node,
   Edge,
   Background,
   Controls,
   NodeTypes,
   ConnectionMode,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import GateNode from './GateNode';
 
 interface LogicDiagramProps {

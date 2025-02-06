@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LogicInput from '@/components/LogicInput';
 import LogicDiagram from '@/components/LogicDiagram';
 import { parseLogicExpression, generateDiagramElements } from '@/utils/logicParser';
-import { Node, Edge } from 'reactflow';
+import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 
 const Index = () => {
